@@ -11,6 +11,9 @@ on:
 jobs:
   build_llvm_win:
     name: Build LLVM release for Windows
+    matrix:
+      strategy:
+        arch: [amd64, amd64_x86]
     runs-on: windows-latest
     steps:
     - name: Cache LLVM
@@ -20,7 +23,7 @@ jobs:
         path: llvm/install
         # TODO: would be really better to add the hash of the LLVM commit cloned
         # TODO: add "14.16" as a variable easy to replace
-        key: ${{ runner.os }}-llvm-release-10-msvc1416-2
+        key: ${{ runner.os }}-llvm-release-10-msvc1416-${{ matrix.arch }}
     - name: Get LLVM
       if: steps.cache-llvm.outputs.cache-hit != 'true'
       uses: actions/checkout@v2
@@ -32,6 +35,7 @@ jobs:
       if: steps.cache-llvm.outputs.cache-hit != 'true'
       with:
         toolset: "14.16"
+        arch: ${{ matrix.arch }}
     - name: Build LLVM
       if: steps.cache-llvm.outputs.cache-hit != 'true'
       run: |
@@ -147,9 +151,12 @@ jobs:
         os:
           - macos-latest
           - windows-latest
+        arch: [amd64, amd64_x86]
         exclude:
           - os: windows-latest
             python-version: 2.7
+          - os: macos-latest
+            arch: amd64_x86
 
     runs-on: ${{ matrix.os }}
     needs: build_llvm_win
@@ -159,6 +166,7 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
       with:
         toolset: "14.16"
+        arch: ${{ matrix.arch }}
       if: runner.os == 'Windows'
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -170,7 +178,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: llvm/install
-        key: ${{ runner.os }}-llvm-release-10-msvc1416-2
+        key: ${{ runner.os }}-llvm-release-10-msvc1416-${{ matrix.arch }}
     - name: Python dependencies
       run: |
         pip install wheel
