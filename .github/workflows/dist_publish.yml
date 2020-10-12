@@ -13,7 +13,7 @@ jobs:
     name: Build LLVM release for Windows
     strategy:
       matrix:
-        arch: [amd64, amd64_x86]
+        arch: [x64, x86]
     runs-on: windows-latest
     steps:
     - name: Cache LLVM
@@ -151,12 +151,12 @@ jobs:
         os:
           - macos-latest
           - windows-latest
-        arch: [amd64, amd64_x86]
+        arch: [x64, x86]
         exclude:
           - os: windows-latest
             python-version: 2.7
           - os: macos-latest
-            arch: amd64_x86
+            arch: x86
 
     runs-on: ${{ matrix.os }}
     needs: build_llvm_win
@@ -172,6 +172,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.arch }}
     - name: Cache LLVM
       if: runner.os == 'Windows'
       id: cache-llvm
