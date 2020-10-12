@@ -11,8 +11,8 @@ on:
 jobs:
   build_llvm_win:
     name: Build LLVM release for Windows
-    matrix:
-      strategy:
+    strategy:
+      matrix:
         arch: [amd64, amd64_x86]
     runs-on: windows-latest
     steps:
